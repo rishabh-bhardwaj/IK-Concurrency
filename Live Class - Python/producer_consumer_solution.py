@@ -35,4 +35,14 @@ class Consumer(threading.Thread):
             condition.notify()
             condition.release()
             time.sleep(random.uniform(0.1, 1))
+if __name__ == "__main__":
+    producer = Producer()
+    consumer = Consumer()
+    
+    producer.start()
+    consumer.start()
+    
+    producer.join()
+    consumer.join()
+
 
