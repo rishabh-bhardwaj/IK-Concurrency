@@ -1,8 +1,4 @@
-package com.ik;
-
 import java.util.concurrent.locks.ReentrantLock;
-
-import static com.ik.BankAccount.transfer;
 
 class BankAccount {
     private int balance = 0;
@@ -23,8 +19,12 @@ class BankAccount {
     public void withdraw(int amount) {
         lock.lock(); // Acquire the lock
         try {
-            balance -= amount;
-            System.out.println(Thread.currentThread().getName() + " withdrew " + amount + ", new balance: " + balance);
+            if (balance >= amount) {
+                balance -= amount;
+                System.out.println(Thread.currentThread().getName() + " withdrew " + amount + ", new balance: " + balance);
+            } else {
+                System.out.println(Thread.currentThread().getName() + " tried to withdraw " + amount + ", but insufficient funds.");
+            }
         } finally {
             lock.unlock(); // Release the lock
         }
@@ -57,18 +57,16 @@ class BankAccount {
             firstLock.lock.unlock(); // Release the first lock
         }
     }
-
 }
 
-public class ReentrantLockBankTransactionDemo{
-
+public class ReentrantLockBankTransactionDemo {
     public static void main(String[] args) {
         BankAccount account1 = new BankAccount();
         BankAccount account2 = new BankAccount();
 
         // Define tasks to transfer money between accounts
-        Runnable task1 = () -> transfer(account1, account2, 100);
-        Runnable task2 = () -> transfer(account2, account1, 50);
+        Runnable task1 = () -> BankAccount.transfer(account1, account2, 100);
+        Runnable task2 = () -> BankAccount.transfer(account2, account1, 50);
 
         // Create and start threads
         Thread t1 = new Thread(task1, "Thread-1");
