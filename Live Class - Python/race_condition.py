@@ -1,17 +1,16 @@
-#Race condition : Slide 25
+#Race condition : Slide 26
 import threading
 
-count = 0
-count_lock = threading.Lock()
+counter = 0
+# Function to increment the counter
+def increment_counter():
+  global counter
+  temp = counter
+  temp += 1
+  counter = temp
 
-def increment_count():
-    global count
-    for _ in range(10000):
-        count += 1
-
-
-t1 = threading.Thread(target=increment_count)
-t2 = threading.Thread(target=increment_count)
+t1 = threading.Thread(target=increment_counter)
+t2 = threading.Thread(target=increment_counter)
 
 t1.start()
 t2.start()
@@ -19,4 +18,4 @@ t2.start()
 t1.join()
 t2.join()
 
-print("Count:", count)
+print("Final counter value:", counter)
