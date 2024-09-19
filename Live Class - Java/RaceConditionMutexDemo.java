@@ -1,4 +1,4 @@
-package com.ik;
+
 
 class Counter {
     private int counter = 0;
