@@ -10,6 +10,7 @@ class ConnectionPool:
         self.max_idle = max_idle
         self.validation_interval_seconds = validation_interval_seconds
         self.lock = threading.Lock()
+        self.stop_event = threading.Event()
 
         self.initialize(min_idle)
         self.executor = ThreadPoolExecutor(max_workers=1)
@@ -19,7 +20,7 @@ class ConnectionPool:
         self.executor.submit(self.validation_task)
 
     def validation_task(self):
-        while True:
+        while not self.stop_event.is_set():
             with self.lock:
                 size = len(self.pool)
 
@@ -40,7 +41,7 @@ class ConnectionPool:
                 obj = self.pool.popleft()
                 print("Reusing existing connection")
             else:
-                print("Creating new connection as non available for reuse")
+                print("Creating new connection as none available for reuse")
                 obj = self.create_object()
         return obj
 
@@ -51,6 +52,7 @@ class ConnectionPool:
                 self.pool.append(obj)
 
     def shutdown(self):
+        self.stop_event.set()  # Signal the validation task to stop
         self.executor.shutdown(wait=True)
 
     def initialize(self, min_idle):
