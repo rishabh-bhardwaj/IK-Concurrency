@@ -1,4 +1,4 @@
-package com.ik;
+
 
 public class RaceConditionDemo {
   private static int count = 0;
